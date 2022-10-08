@@ -12,14 +12,14 @@ const questions = [
         name: "email",
         validate: input => {
             if (input.length === 0) {
-                return "Please enter an email"
+                return "Please enter an email";
             }
             //Regex matches a pattern of (alphanumeric) then if there is a single . or - or _ then require some text
             //it matches a single domain name followed by .com .net or .org (for simplicity"s sake) 
             //followed by an optional two letter country code such as .au
             //matching is case insensitive
             else if (!input.match(/^[a-z0-9]+(?:[._-][a-z0-9]+|[a-z0-9]*)*@[a-z0-9]+\.(?:(com)|(org)|(net))(?:.[a-z]{2,2})?$/i)) {
-                return "Please enter a valid email address."
+                return "Please enter a valid email address.";
             }
             else {
                 return true;
@@ -45,7 +45,7 @@ const questions = [
         },
     },
     {
-        type: "input",
+        type: "editor",
         message: "Please enter a brief description of your project:",
         name: "description",
         validate: input => {
@@ -53,9 +53,10 @@ const questions = [
         },
     },
     {
-        type: "input",
+        type: "editor",
         message: "Please describe the installation process for your project:",
         name: "installation",
+        default: `1. \n2. \n3. `,
         validate: input => {
             return input.split(" ").length < 5 ? "Please give provide a better description of the installation process for your project (more than 5 words). Please try again..." : true;
         },
@@ -64,6 +65,7 @@ const questions = [
         type: "editor",
         message: "Provide some usage examples for your project:",
         name: "usage",
+        default: `\`\`\`\n\n\`\`\``,
         validate: input => {
             return input.split(" ").length < 5 ? "Please give more comprehensive examples " : true;
         }
