@@ -1,8 +1,32 @@
-const licenceDetails = [{
-  licenceName: "Apache Licence 2.0",
-  licenceURL: "https://choosealicense.com/licenses/apache-2.0/",
-  licenceShield: "https://img.shields.io/badge/licence-Apache%202-informational?style=for-the-badge&logo=apache",
-  licenceText: `Apache License
+// If there is no license, return an empty string
+const renderLicenseBadge = licence => {
+  if (licence === "No Licence") return ''
+  return licenceDetails[licenceDetails.findIndex(e => e.licenceName == licence)].licenceShield;
+
+}
+
+// If there is no license, return an empty string
+const renderLicenseLink = licence => {
+  if (licence === "No Licence") return '';
+
+  return licenceDetails[licenceDetails.findIndex(e => e.licenceName == licence)].licenceURL;
+
+}
+
+// If there is no license, return an empty string
+const renderLicenseSection = (name, licence) => {
+  if (licence === "No Licence") return '';
+
+  //get current year
+  const year = new Date().getFullYear();
+
+  //Licence Details objects
+  const licenceDetails = [{
+    licenceName: "Apache Licence 2.0",
+    licenceURL: "https://choosealicense.com/licenses/apache-2.0/",
+    licenceShield: "https://img.shields.io/badge/licence-Apache%202-informational?style=for-the-badge&logo=apache",
+    licenceText: `
+  Apache License
   Version 2.0, January 2004
 http://www.apache.org/licenses/
 
@@ -203,12 +227,12 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.`
-},
-{
-  licenceName: "GNU GPL 3.0",
-  licenceURL: "https://choosealicense.com/licenses/gpl-3.0/",
-  licenceShield: "https://img.shields.io/badge/licence-GNU%20GPL%203.0-informational?style=for-the-badge&logo=gnu",
-  licenceText: `
+  },
+  {
+    licenceName: "GNU GPL 3.0",
+    licenceURL: "https://choosealicense.com/licenses/gpl-3.0/",
+    licenceShield: "https://img.shields.io/badge/licence-GNU%20GPL%203.0-informational?style=for-the-badge&logo=gnu",
+    licenceText: `
                       GNU GENERAL PUBLIC LICENSE
   Version 3, 29 June 2007
 
@@ -883,15 +907,15 @@ may consider it more useful to permit linking proprietary applications with
 the library.  If this is what you want to do, use the GNU Lesser General
 Public License instead of this License.  But first, please read
 <https://www.gnu.org/licenses/why-not-lgpl.html>.`
-},
-{
-  licenceName: "MIT Licence",
-  licenceURL: "https://choosealicense.com/licenses/mit/",
-  licenceShield: "https://img.shields.io/badge/licence-MIT-green?style=flat",
-  licenceText:`
+  },
+  {
+    licenceName: "MIT Licence",
+    licenceURL: "https://choosealicense.com/licenses/mit/",
+    licenceShield: "https://img.shields.io/badge/licence-MIT-green?style=flat",
+    licenceText: `
   MIT License
 
-  Copyright (c) [year] [fullname]
+  Copyright (c) ${year} ${name}
   
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -909,17 +933,16 @@ Public License instead of this License.  But first, please read
   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  SOFTWARE.` 
-},
-{
-  licenceName: "BSD 2-Clause 'simplified' Licence",
-  licenceURL: "https://choosealicense.com/licenses/bsd-2-clause/",
-  licenceShield: "https://img.shields.io/badge/licence-BSD%202%20Clause-informational?style=flat",
-  licenceText: `
+  SOFTWARE.`
+  },
+  {
+    licenceName: "BSD 2-Clause 'simplified' Licence",
+    licenceURL: "https://choosealicense.com/licenses/bsd-2-clause/",
+    licenceShield: "https://img.shields.io/badge/licence-BSD%202%20Clause-informational?style=flat",
+    licenceText: `
   BSD 2-Clause License
 
-Copyright (c) [year], [fullname]
-
+Copyright (c) ${year}, ${name}
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
@@ -940,15 +963,15 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.`
-},
-{
-  licenceName: "BSD 3-Clause 'new' Licence",
-  licenceURL: "https://choosealicense.com/licenses/bsd-3-clause/",
-  licenceShield: "https://img.shields.io/badge/licence-BSD%203%20Clause-informational?style=flat",
-  licenceText: `
+  },
+  {
+    licenceName: "BSD 3-Clause 'new' Licence",
+    licenceURL: "https://choosealicense.com/licenses/bsd-3-clause/",
+    licenceShield: "https://img.shields.io/badge/licence-BSD%203%20Clause-informational?style=flat",
+    licenceText: `
   BSD 3-Clause License
 
-  Copyright (c) [year], [fullname]
+  Copyright (c) ${year}, ${name}
   
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -974,12 +997,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.`
   CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
   OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.`
-},
-{
-  licenceName: "Mozilla Public Licence 2.0",
-  licenceURL: "https://choosealicense.com/licenses/mpl-2.0/",
-  licenceShield: "https://img.shields.io/badge/licence-Mozilla%20Public%20Licence%202.0-orange?style=flat&logo=mozilla",
-  licenceText: `
+  },
+  {
+    licenceName: "Mozilla Public Licence 2.0",
+    licenceURL: "https://choosealicense.com/licenses/mpl-2.0/",
+    licenceShield: "https://img.shields.io/badge/licence-Mozilla%20Public%20Licence%202.0-orange?style=flat&logo=mozilla",
+    licenceText: `
   Mozilla Public License Version 2.0
 ==================================
 
@@ -1353,36 +1376,15 @@ Exhibit B - "Incompatible With Secondary Licenses" Notice
 
   This Source Code Form is "Incompatible With Secondary Licenses", as
   defined by the Mozilla Public License, v. 2.0.`
-}
-]
+  }
+  ]
 
-// If there is no license, return an empty string
-const renderLicenseBadge = licence => {
-  if (licence === "No Licence") return ''
-  return licenceDetails[licenceDetails.findIndex(e=> e.licenceName == licence)].licenceShield;
-
-}
-
-// TODO: Create a function that returns the license link
-// If there is no license, return an empty string
-const renderLicenseLink = licence => {
-  if (licence === "No Licence") return '';
-
-  return licenceDetails[licenceDetails.findIndex(e=> e.licenceName == licence)].licenceURL;
-
-}
-
-// TODO: Create a function that returns the license section of README
-// If there is no license, return an empty string
-const renderLicenseSection = licence => {
-  if (licence === "No Licence") return '';
-  
   return `
   ## Licence
 
   URL: ${renderLicenseLink(licence)}
   
-  ${licenceDetails[licenceDetails.findIndex(e=> e.licenceName == licence)].licenceText}
+  ${licenceDetails[licenceDetails.findIndex(e => e.licenceName == licence)].licenceText}
   
   `;
 
@@ -1426,7 +1428,7 @@ const generateMarkdown = data => {
   
   ${data.collaborators}
   
-  ${renderLicenseSection(data.license)}
+  ${renderLicenseSection(data.name, data.license)}
 
   ---
   
@@ -1442,4 +1444,7 @@ const generateMarkdown = data => {
 `;
 }
 
+
+
 module.exports = generateMarkdown;
+
