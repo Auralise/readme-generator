@@ -1,11 +1,21 @@
 // TODO: Include packages needed for this application
 const inquirer = require("inquirer");
-const fs = require("fs");
+// const fs = require("fs");
 const mdGen = require("./utils/generateMarkdown.js");
+const { writeFile, mkdir } = require("fs/promises");
+const { existsSync } = require("fs");
 
 
 // TODO: Create an array of questions for user input
 const questions = [
+    {
+        type: "input",
+        message: "Please enter your full name (for copyright marks):",
+        name: "name",
+        validate: input => {
+            return input.length < 1 ? "Please enter a valid name" : true;
+        }
+    },
     {
         type: "input",
         message: "Please enter your email address:",
@@ -40,35 +50,40 @@ const questions = [
         message: "Title of project:",
         name: "title",
         validate: input => {
-            return input.length < 3 ? "Title can not be less than 3 characters." :  true;
+            return input.length < 3 ? "Title can not be less than 3 characters." : true;
 
         },
     },
     {
-        type: "editor",
+        type: "input",
         message: "Please enter a brief description of your project:",
         name: "description",
         validate: input => {
-            return input.length < 5 ? "Please enter a useful description of the project." : true;
+            return input.length < 2 ? "Please enter a useful description of the project." : true;
         },
     },
     {
-        type: "editor",
+        type: "input",
         message: "Please describe the installation process for your project:",
         name: "installation",
-        default: `1. \n2. \n3. `,
+        //default: `1. \n2. \n3. `,
         validate: input => {
-            return input.split(" ").length < 5 ? "Please give provide a better description of the installation process for your project (more than 5 words). Please try again..." : true;
+            return input.split(" ").length < 3 ? "Please give provide a better description of the installation process for your project (more than 3 words). Please try again..." : true;
         },
     },
     {
-        type: "editor",
+        type: "input",
         message: "Provide some usage examples for your project:",
         name: "usage",
-        default: `\`\`\`\n\n\`\`\``,
+        // default: `\`\`\`\n\n\`\`\``,
         validate: input => {
-            return input.split(" ").length < 5 ? "Please give more comprehensive examples " : true;
+            return input.split(" ").length < 3 ? "Please give more comprehensive examples " : true;
         }
+    },
+    {
+        type: "input",
+        message: "Provide an overview of how to test the application:",
+        name: "tests"
     },
     {
         type: "input",
@@ -102,22 +117,46 @@ const questions = [
         message: "Describe the contribution guidelines for the project:",
         name: "contribute",
     },
-    {
-        type: "editor",
-        message: "Provide an overview of how to test the application:",
-        name: "tests"
-    },
+
 
 ];
 
+const checkFilePath = path => existsSync(path) ? true : false;
+
 // TODO: Create a function to write README file
-function writeToFile(fileName, data) { }
+const writeToFile = async (filePath, data) => {
+    let path = filePath.split("/");
+    let fileName = path.pop();
+    //If absolute path, starting with /
+    !path[0] ? path = `/${path.join("/")}`: path = path.join("/");
+
+    if(checkFilePath(path)){
+        try {
+            await writeFile(fileName, data);
+            console.log(`Successfully wrote file as ${fileName}`);
+        }
+        catch (err) {
+            console.error(`Failed to write file\nError text: ${err}`);
+        }
+    }
+    else {
+        try {
+            await mkdir(path, {recursive: true});
+            console.log(`Successfully created path: ${path}`);
+            await writeFile(fileName, data);
+            console.log(`Successfully wrote file as ${fileName}`);
+        }
+        catch (err) {
+            console.error(`Failed to write file\nError text: ${err}`);
+        }
+    }
+ }
 
 // TODO: Create a function to initialize app
 function init() {
     inquirer.prompt(questions)
         .then(answers => {
-            console.log(answers)
+            writeToFile(`./output/${answers.title}-README.md`, mdGen(answers))
         })
 }
 

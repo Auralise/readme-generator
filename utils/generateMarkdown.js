@@ -1391,21 +1391,24 @@ const renderLicenseSection = (licence, name) => {
   ${getLicenceDetails(licence,name).licenceText}
   
   `;
+}
 
-
-
+const generateList = list => {
+  let out = ""
+  list.forEach(element => {
+    out += `- ${element}\n`;
+  });
+  return out;
 }
 
 
-
-// TODO: Create a function to generate markdown for README
-const generateMarkdown = data => {
+function generateMarkdown (data) {
   const year = new Date().getFullYear()
   
   return `
   # ${data.title}
 
-  ${renderLicenseBadge(data.license)}
+  ${renderLicenseBadge(data.licence)}
 
   ## Description
   
@@ -1415,6 +1418,8 @@ const generateMarkdown = data => {
   
   - [Installation](#installation)
   - [Usage](#usage)
+  - [Tests](#tests)
+  - [Technology](#technology)
   - [Credits](#credits)
   - [License](#license)
   
@@ -1430,11 +1435,15 @@ const generateMarkdown = data => {
   
   ${data.tests}
   
+  ## Technology
+
+  ${generateList(data.tech.trim().split(","))}
+
   ## Credits
   
-  ${data.collaborators}
+  ${generateList(data.collaborators.trim().split(","))}
   
-  ${renderLicenseSection(data.license, data.name, year)}
+  ${renderLicenseSection(data.licence, data.name, year)}
 
   ---
   
@@ -1454,6 +1463,4 @@ const generateMarkdown = data => {
 }
 
 
-
 module.exports = generateMarkdown;
-
