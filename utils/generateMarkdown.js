@@ -1,6 +1,4 @@
-const getLicenceDetails = (licence, name = "") => {
-  //get current year
-  const year = new Date().getFullYear();
+const getLicenceDetails = (licence, name = "", year = "") => {
 
   //Licence Details objcet
   const licenceDetails = [{
@@ -1382,7 +1380,7 @@ const renderLicenseLink = licence => {
 }
 
 // If there is no license, return an empty string
-const renderLicenseSection = (name, licence) => {
+const renderLicenseSection = (licence, name) => {
   if (licence === "No Licence") return '';
 
   return `
@@ -1402,6 +1400,8 @@ const renderLicenseSection = (name, licence) => {
 
 // TODO: Create a function to generate markdown for README
 const generateMarkdown = data => {
+  const year = new Date().getFullYear()
+  
   return `
   # ${data.title}
 
@@ -1434,7 +1434,7 @@ const generateMarkdown = data => {
   
   ${data.collaborators}
   
-  ${renderLicenseSection(data.name, data.license)}
+  ${renderLicenseSection(data.license, data.name, year)}
 
   ---
   
@@ -1447,6 +1447,9 @@ const generateMarkdown = data => {
   [My Github](https://github.com/${data.github})
   [Email me](mailto:${data.email})
 
+  ---
+
+  Copyright &copy; ${year}, ${data.name}
 `;
 }
 
