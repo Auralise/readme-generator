@@ -1369,7 +1369,7 @@ Exhibit B - "Incompatible With Secondary Licenses" Notice
 // If there is no license, return an empty string
 const renderLicenseBadge = licence => {
   if (licence === "No Licence") return ''
-  return getLicenceDetails(licence).licenceShield;
+  return `![${licence}](${getLicenceDetails(licence).licenceShield})`;
 
 }
 
@@ -1405,7 +1405,7 @@ const generateMarkdown = data => {
   return `
   # ${data.title}
 
-  ![](${renderLicenseBadge(data.license)} "${data.licence}")
+  ${renderLicenseBadge(data.license)}
 
   ## Description
   
