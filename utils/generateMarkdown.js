@@ -4,7 +4,7 @@ const getLicenceDetails = (licence, name = "", year = "") => {
   const licenceDetails = [{
     licenceName: "Apache Licence 2.0",
     licenceURL: "https://choosealicense.com/licenses/apache-2.0/",
-    licenceShield: "https://img.shields.io/badge/licence-Apache%202-informational?style=for-the-badge&logo=apache",
+    licenceShield: "https://img.shields.io/badge/licence-Apache%202-informational?style=flat&logo=apache",
     licenceText: `
   Apache License
   Version 2.0, January 2004
@@ -211,7 +211,7 @@ limitations under the License.`
   {
     licenceName: "GNU GPL 3.0",
     licenceURL: "https://choosealicense.com/licenses/gpl-3.0/",
-    licenceShield: "https://img.shields.io/badge/licence-GNU%20GPL%203.0-informational?style=for-the-badge&logo=gnu",
+    licenceShield: "https://img.shields.io/badge/licence-GNU%20GPL%203.0-informational?style=flat&logo=gnu",
     licenceText: `
                       GNU GENERAL PUBLIC LICENSE
   Version 3, 29 June 2007
@@ -1388,72 +1388,82 @@ const renderLicenseSection = (licence, name) => {
 
   URL: ${renderLicenseLink(licence)}
   
+  \`\`\`
   ${getLicenceDetails(licence,name).licenceText}
-  
+  \`\`\`
+
   `;
+}
 
-
-
+const generateList = list => {
+  let out = ""
+  list.forEach(element => {
+    out += `- ${element}\n`;
+  });
+  return out;
 }
 
 
-
-// TODO: Create a function to generate markdown for README
 const generateMarkdown = data => {
   const year = new Date().getFullYear()
   
   return `
-  # ${data.title}
+# ${data.title}
 
-  ${renderLicenseBadge(data.license)}
+${renderLicenseBadge(data.licence)}
 
-  ## Description
-  
-  ${data.description}
-  
-  ## Table of Contents 
-  
-  - [Installation](#installation)
-  - [Usage](#usage)
-  - [Credits](#credits)
-  - [License](#license)
-  
-  ## Installation
-  
-  ${data.installation}
-  
-  ## Usage
- 
-  ${data.usage}
+## Description
 
-  ## Tests
-  
-  ${data.tests}
-  
-  ## Credits
-  
-  ${data.collaborators}
-  
-  ${renderLicenseSection(data.license, data.name, year)}
+${data.description}
 
-  ---
-  
-  ## How to Contribute
-  
-  ${data.contribute}
+## Table of Contents 
 
-  ## Questions
+- [Installation](#installation)
+- [Usage](#usage)
+- [Tests](#tests)
+- [Technology](#technology)
+- [Credits](#credits)
+- [License](#licence)
 
-  [My Github](https://github.com/${data.github})
-  [Email me](mailto:${data.email})
+## Installation
 
-  ---
+${data.installation}
 
-  Copyright &copy; ${year}, ${data.name}
+## Usage
+
+${data.usage}
+
+## Tests
+
+${data.tests}
+
+## Technology
+
+${generateList(data.tech.trim().split(","))}
+
+## Credits
+
+${generateList(data.collaborators.trim().split(","))}
+
+${renderLicenseSection(data.licence, data.name, year)}
+
+---
+
+## How to Contribute
+
+${data.contribute}
+
+## Questions
+
+[My Github](https://github.com/${data.github})
+
+[Email me](mailto:${data.email})
+
+---
+
+Copyright &copy; ${year}, ${data.name}
 `;
 }
 
 
-
 module.exports = generateMarkdown;
-

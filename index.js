@@ -1,11 +1,21 @@
 // TODO: Include packages needed for this application
 const inquirer = require("inquirer");
-const fs = require("fs");
+// const fs = require("fs");
 const mdGen = require("./utils/generateMarkdown.js");
+const { writeFile, mkdir } = require("fs/promises");
+const { existsSync } = require("fs");
 
 
 // TODO: Create an array of questions for user input
 const questions = [
+    {
+        type: "input",
+        message: "Please enter your full name (for copyright marks):",
+        name: "name",
+        validate: input => {
+            return input.length < 1 ? "Please enter a valid name" : true;
+        }
+    },
     {
         type: "input",
         message: "Please enter your email address:",
@@ -40,7 +50,7 @@ const questions = [
         message: "Title of project:",
         name: "title",
         validate: input => {
-            return input.length < 3 ? "Title can not be less than 3 characters." :  true;
+            return input.length < 3 ? "Title can not be less than 3 characters." : true;
 
         },
     },
@@ -49,7 +59,7 @@ const questions = [
         message: "Please enter a brief description of your project:",
         name: "description",
         validate: input => {
-            return input.length < 5 ? "Please enter a useful description of the project." : true;
+            return input.length < 2 ? "Please enter a useful description of the project." : true;
         },
     },
     {
@@ -58,7 +68,7 @@ const questions = [
         name: "installation",
         default: `1. \n2. \n3. `,
         validate: input => {
-            return input.split(" ").length < 5 ? "Please give provide a better description of the installation process for your project (more than 5 words). Please try again..." : true;
+            return input.split(" ").length < 3 ? "Please give provide a better description of the installation process for your project (more than 3 words). Please try again..." : true;
         },
     },
     {
@@ -67,8 +77,13 @@ const questions = [
         name: "usage",
         default: `\`\`\`\n\n\`\`\``,
         validate: input => {
-            return input.split(" ").length < 5 ? "Please give more comprehensive examples " : true;
+            return input.split(" ").length < 3 ? "Please give more comprehensive examples " : true;
         }
+    },
+    {
+        type: "editor",
+        message: "Provide an overview of how to test the application:",
+        name: "tests",
     },
     {
         type: "input",
@@ -98,26 +113,80 @@ const questions = [
         ],
     },
     {
-        type: "input",
+        type: "editor",
         message: "Describe the contribution guidelines for the project:",
         name: "contribute",
     },
-    {
-        type: "editor",
-        message: "Provide an overview of how to test the application:",
-        name: "tests"
-    },
+
 
 ];
 
+const fileCheck = [{
+    type: "input",
+    message: "File already exists, do you want to overwrite? (y for yes, n for no) ",
+    name: "overwrite",
+    validate: input => {
+        if (input.toLowerCase() !== "y" && input.toLowerCase() !== "n") {
+            return "Please answer y or n"
+        } else {
+            return true;
+        }
+    }
+}]
+
+const checkPath = path => existsSync(path) ? true : false;
+
 // TODO: Create a function to write README file
-function writeToFile(fileName, data) { }
+const writeToFile = async (path, data) => {
+    let directory = path.split("/");
+    let fileName = directory.pop();
+    //If absolute path, starting with /
+    !directory[0] ? directory = `/${directory.join("/")}` : directory = directory.join("/");
+
+    if (checkPath(directory)) {
+        try {
+            //Check if file already exists
+            if (checkPath(path)) {
+                const fileAction = await inquirer.prompt(fileCheck);
+
+                switch (fileAction.overwrite.toLowerCase()) {
+                    case 'y':
+                        await writeFile(path, data);
+                        console.log(`Successfully overwrote file ${path}`);
+                        break;
+                    case 'n':
+                        throw new Error(`User aborted Overwrite`);
+                }
+            }
+            else {
+                await writeFile(path, data);
+                console.log(`Successfully wrote file as ${path}`);
+            }
+        }
+        catch (err) {
+            console.error(`Failed to write file\nError text: ${err}`);
+        }
+    }
+    else {
+        try {
+            await mkdir(directory, { recursive: true });
+            console.log(`Successfully created path: ${directory}`);
+            await writeFile(path, data);
+            console.log(`Successfully wrote file as ${path}`);
+
+
+        }
+        catch (err) {
+            console.error(`Failed to write file\nError text: ${err}`);
+        }
+    }
+}
 
 // TODO: Create a function to initialize app
 function init() {
     inquirer.prompt(questions)
         .then(answers => {
-            console.log(answers)
+            writeToFile(`./output/${answers.title}/README.md`, mdGen(answers))
         })
 }
 
