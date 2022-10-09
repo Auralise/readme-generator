@@ -1,26 +1,6 @@
-// If there is no license, return an empty string
-const renderLicenseBadge = licence => {
-  if (licence === "No Licence") return ''
-  return licenceDetails[licenceDetails.findIndex(e => e.licenceName == licence)].licenceShield;
+const getLicenceDetails = (licence, name = "", year = "") => {
 
-}
-
-// If there is no license, return an empty string
-const renderLicenseLink = licence => {
-  if (licence === "No Licence") return '';
-
-  return licenceDetails[licenceDetails.findIndex(e => e.licenceName == licence)].licenceURL;
-
-}
-
-// If there is no license, return an empty string
-const renderLicenseSection = (name, licence) => {
-  if (licence === "No Licence") return '';
-
-  //get current year
-  const year = new Date().getFullYear();
-
-  //Licence Details objects
+  //Licence Details objcet
   const licenceDetails = [{
     licenceName: "Apache Licence 2.0",
     licenceURL: "https://choosealicense.com/licenses/apache-2.0/",
@@ -1379,12 +1359,36 @@ Exhibit B - "Incompatible With Secondary Licenses" Notice
   }
   ]
 
+  return licenceDetails[licenceDetails.findIndex(e => e.licenceName == licence)];
+}
+
+
+
+// If there is no license, return an empty string
+const renderLicenseBadge = licence => {
+  if (licence === "No Licence") return ''
+  return `![${licence}](${getLicenceDetails(licence).licenceShield})`;
+
+}
+
+// If there is no license, return an empty string
+const renderLicenseLink = licence => {
+  if (licence === "No Licence") return '';
+
+  return getLicenceDetails(licence).licenceURL;
+
+}
+
+// If there is no license, return an empty string
+const renderLicenseSection = (licence, name) => {
+  if (licence === "No Licence") return '';
+
   return `
   ## Licence
 
   URL: ${renderLicenseLink(licence)}
   
-  ${licenceDetails[licenceDetails.findIndex(e => e.licenceName == licence)].licenceText}
+  ${getLicenceDetails(licence,name).licenceText}
   
   `;
 
@@ -1396,10 +1400,12 @@ Exhibit B - "Incompatible With Secondary Licenses" Notice
 
 // TODO: Create a function to generate markdown for README
 const generateMarkdown = data => {
+  const year = new Date().getFullYear()
+  
   return `
   # ${data.title}
 
-  ![](${renderLicenseBadge(data.license)} "${data.licence}")
+  ${renderLicenseBadge(data.license)}
 
   ## Description
   
@@ -1428,7 +1434,7 @@ const generateMarkdown = data => {
   
   ${data.collaborators}
   
-  ${renderLicenseSection(data.name, data.license)}
+  ${renderLicenseSection(data.license, data.name, year)}
 
   ---
   
@@ -1441,6 +1447,9 @@ const generateMarkdown = data => {
   [My Github](https://github.com/${data.github})
   [Email me](mailto:${data.email})
 
+  ---
+
+  Copyright &copy; ${year}, ${data.name}
 `;
 }
 
