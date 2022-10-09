@@ -117,6 +117,20 @@ const questions = [
         message: "Describe the contribution guidelines for the project:",
         name: "contribute",
     },
+    {
+        type: "input",
+        message: "What directory do you want to write the output to? Leave blank to use default (./output/title/README.md): ",
+        name: "targetDir",
+        validate: input => {
+            if (input.substring(0,2) !== "./" && input.charAt(0) !== "/") {
+                return "Please enter a valid unix-style file path starting with ./ or /";
+            }
+            else {
+                return true;
+            }
+        }
+
+    }
 
 
 ];
@@ -186,7 +200,14 @@ const writeToFile = async (path, data) => {
 function init() {
     inquirer.prompt(questions)
         .then(answers => {
-            writeToFile(`./output/${answers.title}/README.md`, mdGen(answers))
+
+            let {targetDir} = answers;
+            
+            if (targetDir.charAt(targetDir.length -1) === "/")
+            {
+                targetDir = targetDir.slice(0, targetDir.length -1)
+            }
+            writeToFile(`${targetDir}/README.md`, mdGen(answers))
         })
 }
 
