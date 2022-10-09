@@ -55,7 +55,7 @@ const questions = [
         },
     },
     {
-        type: "input",
+        type: "editor",
         message: "Please enter a brief description of your project:",
         name: "description",
         validate: input => {
@@ -63,27 +63,27 @@ const questions = [
         },
     },
     {
-        type: "input",
+        type: "editor",
         message: "Please describe the installation process for your project:",
         name: "installation",
-        //default: `1. \n2. \n3. `,
+        default: `1. \n2. \n3. `,
         validate: input => {
             return input.split(" ").length < 3 ? "Please give provide a better description of the installation process for your project (more than 3 words). Please try again..." : true;
         },
     },
     {
-        type: "input",
+        type: "editor",
         message: "Provide some usage examples for your project:",
         name: "usage",
-        // default: `\`\`\`\n\n\`\`\``,
+        default: `\`\`\`\n\n\`\`\``,
         validate: input => {
             return input.split(" ").length < 3 ? "Please give more comprehensive examples " : true;
         }
     },
     {
-        type: "input",
+        type: "editor",
         message: "Provide an overview of how to test the application:",
-        name: "tests"
+        name: "tests",
     },
     {
         type: "input",
@@ -113,7 +113,7 @@ const questions = [
         ],
     },
     {
-        type: "input",
+        type: "editor",
         message: "Describe the contribution guidelines for the project:",
         name: "contribute",
     },
@@ -121,19 +121,47 @@ const questions = [
 
 ];
 
-const checkFilePath = path => existsSync(path) ? true : false;
+const fileCheck = [{
+    type: "input",
+    message: "File already exists, do you want to overwrite? (y for yes, n for no) ",
+    name: "overwrite",
+    validate: input => {
+        if (input.toLowerCase() !== "y" && input.toLowerCase() !== "n") {
+            return "Please answer y or n"
+        } else {
+            return true;
+        }
+    }
+}]
+
+const checkPath = path => existsSync(path) ? true : false;
 
 // TODO: Create a function to write README file
-const writeToFile = async (filePath, data) => {
-    let path = filePath.split("/");
-    let fileName = path.pop();
+const writeToFile = async (path, data) => {
+    let directory = path.split("/");
+    let fileName = directory.pop();
     //If absolute path, starting with /
-    !path[0] ? path = `/${path.join("/")}`: path = path.join("/");
+    !directory[0] ? directory = `/${directory.join("/")}` : directory = directory.join("/");
 
-    if(checkFilePath(path)){
+    if (checkPath(directory)) {
         try {
-            await writeFile(fileName, data);
-            console.log(`Successfully wrote file as ${fileName}`);
+            //Check if file already exists
+            if (checkPath(path)) {
+                const fileAction = await inquirer.prompt(fileCheck);
+
+                switch (fileAction.overwrite.toLowerCase()) {
+                    case 'y':
+                        await writeFile(path, data);
+                        console.log(`Successfully overwrote file ${path}`);
+                        break;
+                    case 'n':
+                        throw new Error(`User aborted Overwrite`);
+                }
+            }
+            else {
+                await writeFile(path, data);
+                console.log(`Successfully wrote file as ${path}`);
+            }
         }
         catch (err) {
             console.error(`Failed to write file\nError text: ${err}`);
@@ -141,22 +169,24 @@ const writeToFile = async (filePath, data) => {
     }
     else {
         try {
-            await mkdir(path, {recursive: true});
-            console.log(`Successfully created path: ${path}`);
-            await writeFile(fileName, data);
-            console.log(`Successfully wrote file as ${fileName}`);
+            await mkdir(directory, { recursive: true });
+            console.log(`Successfully created path: ${directory}`);
+            await writeFile(path, data);
+            console.log(`Successfully wrote file as ${path}`);
+
+
         }
         catch (err) {
             console.error(`Failed to write file\nError text: ${err}`);
         }
     }
- }
+}
 
 // TODO: Create a function to initialize app
 function init() {
     inquirer.prompt(questions)
         .then(answers => {
-            writeToFile(`./output/${answers.title}-README.md`, mdGen(answers))
+            writeToFile(`./output/${answers.title}/README.md`, mdGen(answers))
         })
 }
 
