@@ -1384,21 +1384,22 @@ const renderLicenseSection = (licence, name) => {
   if (licence === "No Licence") return '';
 
   return `
-  ## Licence
+## Licence
 
-  URL: ${renderLicenseLink(licence)}
-  
-  \`\`\`
-  ${getLicenceDetails(licence,name).licenceText}
-  \`\`\`
+URL: ${renderLicenseLink(licence)}
+
+\`\`\`
+${getLicenceDetails(licence,name).licenceText}
+\`\`\`
 
   `;
 }
 
 const generateList = list => {
-  let out = ""
+  let out = "";
+
   list.forEach(element => {
-    out += `- ${element}\n`;
+    out += `- ${element.trim()}\n`;
   });
   return out;
 }
