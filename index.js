@@ -1,12 +1,9 @@
-// TODO: Include packages needed for this application
+// Required pacakages and functionality
 const inquirer = require("inquirer");
-// const fs = require("fs");
 const mdGen = require("./utils/generateMarkdown.js");
 const { writeFile, mkdir } = require("fs/promises");
 const { existsSync } = require("fs");
 
-
-// TODO: Create an array of questions for user input
 const questions = [
     {
         type: "input",
@@ -24,9 +21,9 @@ const questions = [
             if (input.length === 0) {
                 return "Please enter an email";
             }
-            //Regex matches a pattern of (alphanumeric) then if there is a single . or - or _ then require some text
-            //it matches a single domain name followed by .com .net or .org (for simplicity"s sake) 
-            //followed by an optional two letter country code such as .au
+            //Regex matches a pattern of (alphanumeric) then if there is a single . or - or _ then requires additonal alphanumeric text before the @ symbol
+            //it matches a single domain name followed by .com .net or .org (for simplicity's sake - I could theoretically extend this to meet all possible other addresses) 
+            //This is followed by an optional two letter country code such as .au
             //matching is case insensitive
             else if (!input.match(/^[a-z0-9]+(?:[._-][a-z0-9]+|[a-z0-9]*)*@[a-z0-9]+\.(?:(com)|(org)|(net))(?:.[a-z]{2,2})?$/i)) {
                 return "Please enter a valid email address.";
@@ -41,7 +38,7 @@ const questions = [
         message: "Provide your Github username:",
         name: "github",
         validate: input => {
-            return input.length === 0 ? "Github link can not be blank" : true;
+            return input.length < 1 ? "Github link can not be blank" : true;
         }
 
     },
@@ -68,7 +65,7 @@ const questions = [
         name: "installation",
         default: `1. \n2. \n3. `,
         validate: input => {
-            return input.split(" ").length < 3 ? "Please give provide a better description of the installation process for your project (more than 3 words). Please try again..." : true;
+            return input.split(" ").length < 3 ? "Please give provide a better description of the installation process for your project (more than 3 words)" : true;
         },
     },
     {
@@ -87,7 +84,7 @@ const questions = [
     },
     {
         type: "input",
-        message: "Name your project collaborators, separated with commas:",
+        message: "Name your project contributors, separated with commas:",
         name: "collaborators",
     },
     {
@@ -117,6 +114,22 @@ const questions = [
         message: "Describe the contribution guidelines for the project:",
         name: "contribute",
     },
+    {
+        type: "input",
+        message: "What directory do you want to write the output to? Leave blank to use default (./output/title/README.md): ",
+        name: "targetDir",
+        validate: input => {
+            if (input.substring(0, 2) !== "./" && input.charAt(0) !== "/" || input.length === 0) {
+                //I have deliberately chosen to not support immediate path traversal by allowing ../
+                // This can be done with ./../.. for example
+                return "Please enter a valid unix-style file path starting with ./ (relative to index.js) or / (absolute)";
+            }
+            else {
+                return true;
+            }
+        }
+
+    }
 
 
 ];
@@ -138,15 +151,17 @@ const checkPath = path => existsSync(path) ? true : false;
 
 // TODO: Create a function to write README file
 const writeToFile = async (path, data) => {
-    let directory = path.split("/");
-    let fileName = directory.pop();
-    //If absolute path, starting with /
+    let directory = path.split("/").slice(0, -1);
+
+    //If absolute path, starting with / leaving index 0 after splitting to be blank
     !directory[0] ? directory = `/${directory.join("/")}` : directory = directory.join("/");
 
     if (checkPath(directory)) {
         try {
             //Check if file already exists
             if (checkPath(path)) {
+                // Ask the user how they want to handle the filename conflict
+                // Using Async await here for practice
                 const fileAction = await inquirer.prompt(fileCheck);
 
                 switch (fileAction.overwrite.toLowerCase()) {
@@ -155,7 +170,7 @@ const writeToFile = async (path, data) => {
                         console.log(`Successfully overwrote file ${path}`);
                         break;
                     case 'n':
-                        throw new Error(`User aborted Overwrite`);
+                        throw new Error(`User aborted file write`);
                 }
             }
             else {
@@ -169,6 +184,7 @@ const writeToFile = async (path, data) => {
     }
     else {
         try {
+            //Recursively create directory path
             await mkdir(directory, { recursive: true });
             console.log(`Successfully created path: ${directory}`);
             await writeFile(path, data);
@@ -183,10 +199,18 @@ const writeToFile = async (path, data) => {
 }
 
 // TODO: Create a function to initialize app
-function init() {
+const init = () => {
     inquirer.prompt(questions)
         .then(answers => {
-            writeToFile(`./output/${answers.title}/README.md`, mdGen(answers))
+
+            let { targetDir } = answers;
+
+            if (targetDir.length !== 1 && targetDir.charAt(targetDir.length - 1) === "/") {
+                //If not targeting root (/), normalise file path by removing trailing slashes
+                targetDir = targetDir.slice(0, targetDir.length - 1)
+            }
+            //User can only ever write README.md files to avoid security issues
+            writeToFile(`${targetDir}/README.md`, mdGen(answers))
         })
 }
 
